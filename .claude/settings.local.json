@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python -m venv .venv)",
+      "Bash(.venv/Scripts/pip install:*)",
+      "Bash(.venv/Scripts/python -c \"from app.config import settings; print\\('config OK'\\)\")",
+      "Bash(.venv/Scripts/python -c \"from app.models import ExpenseExtraction, TAXONOMY; print\\('models OK, categories:', list\\(TAXONOMY.keys\\(\\)\\)[:3]\\)\")",
+      "Bash(.venv/Scripts/python -c \"import ast; [ast.parse\\(open\\(f\\).read\\(\\)\\) for f in ['main.py','local_dev.py','setup_webhook.py','app/db.py','app/llm.py','app/reports.py','app/handlers.py']]; print\\('all syntax OK'\\)\")",
+      "Bash(.venv/Scripts/python -c \"from app.config import settings; print\\('config OK — bot token ends:', settings.telegram_bot_token[-6:]\\)\")",
+      "Bash(.venv/Scripts/python -c \"from app.models import ExpenseExtraction, TAXONOMY, ALL_CATEGORIES, ALL_SUBCATEGORIES; print\\('models OK'\\); print\\('Categories:', ALL_CATEGORIES\\); print\\('Subcategories:', ALL_SUBCATEGORIES\\)\")",
+      "Bash(.venv/Scripts/python -c \"import ast; [ast.parse\\(open\\(f\\).read\\(\\)\\) for f in ['main.py','local_dev.py','setup_webhook.py','app/db.py','app/llm.py','app/reports.py','app/handlers.py']]; print\\('All syntax OK'\\)\")",
+      "Bash(.venv/Scripts/python -c ':*)"
+    ]
+  }
+}

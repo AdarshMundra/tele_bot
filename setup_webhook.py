@@ -1,14 +1,15 @@
 """
-One-time script to register the Telegram webhook with Koyeb public URL.
+One-time script to register the Telegram webhook after deploying to Render.
 
-Usage (after deploying to Koyeb):
-    KOYEB_URL=https://your-app.koyeb.app python setup_webhook.py
+Usage:
+    RENDER_URL=https://your-app.onrender.com python setup_webhook.py
 
-Or set KOYEB_URL in your .env and just run:
+Or add RENDER_URL to your .env and just run:
     python setup_webhook.py
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 
@@ -19,14 +20,14 @@ load_dotenv()
 
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 WEBHOOK_SECRET = os.environ["TELEGRAM_WEBHOOK_SECRET"]
-KOYEB_URL = os.environ.get("KOYEB_URL", "").rstrip("/")
+RENDER_URL = os.environ.get("RENDER_URL", "").rstrip("/")
 
-if not KOYEB_URL:
-    print("ERROR: Set KOYEB_URL environment variable to your Koyeb public URL.")
-    print("Example: KOYEB_URL=https://your-app.koyeb.app python setup_webhook.py")
+if not RENDER_URL:
+    print("ERROR: Set RENDER_URL to your Render public URL.")
+    print("Example: RENDER_URL=https://your-app.onrender.com python setup_webhook.py")
     sys.exit(1)
 
-webhook_url = f"{KOYEB_URL}/webhook/{WEBHOOK_SECRET}"
+webhook_url = f"{RENDER_URL}/webhook/{WEBHOOK_SECRET}"
 print(f"Registering webhook: {webhook_url}")
 
 resp = httpx.post(
@@ -50,5 +51,4 @@ else:
 # Verify
 info_resp = httpx.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getWebhookInfo")
 print("\nWebhook info:")
-import json
 print(json.dumps(info_resp.json(), indent=2))

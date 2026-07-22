@@ -52,6 +52,7 @@ async def cmd_start(chat_id: int) -> None:
         "/monthly — this month's spending\n"
         "/undo — delete last logged expense\n"
         "/delete `<id>` — delete expense by ID\n"
+        "/check — ping server and wake it up if sleeping\n"
         "/help — show this message"
     )
     await send_message(chat_id, text)
@@ -84,6 +85,39 @@ async def cmd_undo(chat_id: int) -> None:
         )
     else:
         await send_message(chat_id, "Could not delete the expense. It may already be gone.")
+
+
+async def cmd_check(chat_id: int) -> None:
+    """Ping the Render /health endpoint to confirm the server is up (and wake it if sleeping)."""
+    url = settings.render_service_url
+    if not url:
+        await send_message(chat_id, "⚠️ `RENDER_SERVICE_URL` is not configured.")
+        return
+
+    health_url = url.rstrip("/") + "/health"
+    await send_message(chat_id, f"Pinging `{health_url}` …")
+    try:
+        import time
+        t0 = time.monotonic()
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.get(health_url)
+        elapsed = time.monotonic() - t0
+
+        if resp.status_code == 200:
+            await send_message(
+                chat_id,
+                f"✅ Server is *up* and healthy.\n⏱ Response time: {elapsed:.2f}s",
+            )
+        else:
+            await send_message(
+                chat_id,
+                f"⚠️ Server responded with HTTP {resp.status_code} in {elapsed:.2f}s",
+            )
+    except httpx.TimeoutException:
+        await send_message(chat_id, "⏳ Request timed out (30 s). Server may still be waking up — try again in a moment.")
+    except Exception as exc:
+        logger.exception("cmd_check failed")
+        await send_message(chat_id, f"❌ Could not reach server: `{exc}`")
 
 
 async def cmd_delete(chat_id: int, args: str) -> None:
@@ -186,6 +220,8 @@ async def handle_update(update: dict[str, Any]) -> None:
             await cmd_undo(chat_id)
         elif command == "/delete":
             await cmd_delete(chat_id, args)
+        elif command == "/check":
+            await cmd_check(chat_id)
         else:
             await send_message(chat_id, f"Unknown command: `{command}`\nType /help for usage.")
     else:

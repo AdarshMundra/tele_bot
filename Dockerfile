@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY main.py .
 
-# Koyeb injects $PORT at runtime
+# Render injects $PORT at runtime
 ENV PORT=8000
 
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT}"]

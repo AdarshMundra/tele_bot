@@ -20,6 +20,9 @@ class Settings(BaseSettings):
 
     allowed_telegram_user_id: int
 
+    # Render service public URL — used by /check command to wake up the server
+    render_service_url: str = ""
+
     @property
     def supabase_db_url(self) -> str:
         return self.database_url

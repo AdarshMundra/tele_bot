@@ -53,10 +53,12 @@ async def webhook(
 ) -> dict[str, str]:
     # 1. Verify path secret matches env
     if secret != settings.telegram_webhook_secret:
+        logger.warning("Path secret mismatch: got %d chars, expected %d chars", len(secret), len(settings.telegram_webhook_secret))
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad secret")
 
     # 2. Verify Telegram header secret (set when registering the webhook)
     if x_telegram_bot_api_secret_token != settings.telegram_webhook_secret:
+        logger.warning("Header secret mismatch: got %r (len=%d), expected len=%d", x_telegram_bot_api_secret_token[:4] + "***", len(x_telegram_bot_api_secret_token), len(settings.telegram_webhook_secret))
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bad header secret")
 
     update: dict[str, Any] = await request.json()

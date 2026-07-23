@@ -12,5 +12,7 @@ COPY main.py .
 
 # Render injects $PORT at runtime
 ENV PORT=8000
+# Disable Python stdout buffering so logs appear immediately in Render
+ENV PYTHONUNBUFFERED=1
 
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT}"]

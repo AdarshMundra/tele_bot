@@ -39,6 +39,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Expense Tracker Bot", lifespan=lifespan)
 
 
+@app.get("/")
+async def root() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}

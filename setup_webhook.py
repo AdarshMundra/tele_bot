@@ -42,10 +42,10 @@ resp = httpx.post(
 data = resp.json()
 
 if data.get("ok"):
-    print("✅ Webhook registered successfully.")
+    print("OK: Webhook registered successfully.")
     print(f"   Telegram will POST updates to: {webhook_url}")
 else:
-    print(f"❌ Failed to register webhook: {data}")
+    print(f"FAILED: Could not register webhook: {data}")
     sys.exit(1)
 
 # Verify

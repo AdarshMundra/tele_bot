@@ -164,6 +164,8 @@ async def handle_expense_text(chat_id: int, text: str) -> None:
             subcategory=extraction.subcategory,
             occurred_at=occurred_at,
             raw_message=text,
+            payment_mode=extraction.payment_mode,
+            payment_source=extraction.payment_source,
         )
     except Exception:
         logger.exception("DB insert failed")
@@ -173,11 +175,18 @@ async def handle_expense_text(chat_id: int, text: str) -> None:
     date_str = occurred_at.astimezone(__import__("pytz").timezone("Asia/Kolkata")).strftime(
         "%d %b %Y"
     )
+    payment_parts = []
+    if extraction.payment_mode:
+        payment_parts.append(extraction.payment_mode.upper())
+    if extraction.payment_source:
+        payment_parts.append(extraction.payment_source)
+    payment_str = f"  •  💳 {' / '.join(payment_parts)}" if payment_parts else ""
+
     await send_message(
         chat_id,
         f"✅ *{extraction.description}*\n"
         f"₹{extraction.amount:,.2f}  •  {extraction.category} → {extraction.subcategory}\n"
-        f"📅 {date_str}  •  id `{expense_id}`",
+        f"📅 {date_str}{payment_str}  •  id `{expense_id}`",
     )
 
 

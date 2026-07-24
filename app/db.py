@@ -46,12 +46,14 @@ async def insert_expense(
     subcategory: str,
     occurred_at: datetime,
     raw_message: str,
+    payment_mode: Optional[str] = None,
+    payment_source: Optional[str] = None,
 ) -> int:
     """Insert an expense row and return its id."""
     row = await get_pool().fetchrow(
         """
-        INSERT INTO expenses (amount, description, category, subcategory, occurred_at, raw_message)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO expenses (amount, description, category, subcategory, occurred_at, raw_message, payment_mode, payment_source)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id
         """,
         amount,
@@ -60,6 +62,8 @@ async def insert_expense(
         subcategory,
         occurred_at,
         raw_message,
+        payment_mode,
+        payment_source,
     )
     return row["id"]
 

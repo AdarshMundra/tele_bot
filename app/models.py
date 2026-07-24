@@ -67,8 +67,28 @@ EXPENSE_JSON_SCHEMA = {
                         "date as YYYY-MM-DD. Otherwise return null."
                     ),
                 },
+                "payment_mode": {
+                    "type": "string",
+                    "enum": ["upi", "cash", "card", "netbanking", "wallet"],
+                    "default": "upi",
+                    "description": (
+                        "How the payment was made. 'upi' for UPI/GPay/PhonePe/Paytm transfers, "
+                        "'cash' for physical cash, 'card' for swipe/tap on a card terminal, "
+                        "'netbanking' for net banking, 'wallet' for e-wallets. "
+                        "Null if not mentioned."
+                    ),
+                },
+                "payment_source": {
+                    "type": "string",
+                    "enum": ["credit card", "debit card", "HDFC", "IOB account", "BOB account"],
+                    "default": "credit card",
+                    "description": (
+                        "The account or card debited, e.g. 'credit card', 'debit card', "
+                        "'HDFC savings', 'SBI account'. Null if not mentioned."
+                    ),
+                },
             },
-            "required": ["amount", "description", "category", "subcategory", "occurred_at"],
+            "required": ["amount", "description", "category", "subcategory", "occurred_at", "payment_mode", "payment_source"],
             "additionalProperties": False,
         },
     },
@@ -85,6 +105,8 @@ class ExpenseExtraction(BaseModel):
     category: str
     subcategory: str
     occurred_at: Optional[str] = None  # YYYY-MM-DD or null
+    payment_mode: Optional[str] = "UPI"  # upi, cash, card, netbanking, wallet
+    payment_source: Optional[str] = "Credit Card"  # credit card, debit card, HDFC savings, etc.
 
     @field_validator("amount")
     @classmethod

@@ -9,7 +9,9 @@ create table if not exists expenses (
   subcategory   text not null,
   occurred_at   timestamptz not null,     -- when the expense happened (IST-resolved, stored as UTC)
   created_at    timestamptz not null default now(),
-  raw_message   text                      -- original Telegram text, for re-parse/debug
+  raw_message     text,                     -- original Telegram text, for re-parse/debug
+  payment_mode    text,                     -- upi, cash, card, netbanking, wallet
+  payment_source  text                      -- credit card, debit card, HDFC savings, etc.
 );
 
 create index if not exists idx_expenses_occurred_at on expenses (occurred_at);

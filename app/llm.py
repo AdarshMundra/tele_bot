@@ -36,6 +36,14 @@ Rules:
 - category and subcategory: must be picked EXACTLY from the provided taxonomy — do not invent new ones
 - occurred_at: if the user mentions a date (e.g. "yesterday", "on the 3rd", "last Monday"), \
 resolve it to YYYY-MM-DD using today's date provided below. If no date is mentioned, return null.
+- payment_mode: how the payment was made — one of: "upi", "cash", "card", "netbanking", "wallet". \
+"upi" covers UPI, GPay, PhonePe, Paytm transfers. "card" means a card was swiped/tapped. \
+Return upi if not mentioned.
+- payment_source: what account or card was debited — e.g. "credit card", "debit card", \
+"HDFC savings", "IOB account", "BOB account". Return credit card if not mentioned. \
+Examples: "upi card" → payment_mode=upi, payment_source=credit card; \
+"cash" → payment_mode=cash, payment_source=null; \
+"hdfc credit" → payment_mode=card, payment_source=HDFC credit card.
 
 Today's date (IST): {today}
 

@@ -14,7 +14,7 @@ from app.db import (
     insert_expense,
 )
 from app.llm import extract_expense
-from app.reports import build_daily_report, build_monthly_report
+from app.reports import build_daily_report, build_monthly_report, build_weekly_report, build_summary
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,9 @@ async def cmd_start(chat_id: int) -> None:
         "  • `groceries 890`\n\n"
         "*Commands:*\n"
         "/daily — today's spending\n"
+        "/weekly — this week's spending\n"
         "/monthly — this month's spending\n"
+        "/summary — today / week / month at a glance\n"
         "/undo — delete last logged expense\n"
         "/delete `<id>` — delete expense by ID\n"
         "/check — ping server and wake it up if sleeping\n"
@@ -69,6 +71,16 @@ async def cmd_daily(chat_id: int) -> None:
 
 async def cmd_monthly(chat_id: int) -> None:
     report = await build_monthly_report()
+    await send_message(chat_id, report)
+
+
+async def cmd_weekly(chat_id: int) -> None:
+    report = await build_weekly_report()
+    await send_message(chat_id, report)
+
+
+async def cmd_summary(chat_id: int) -> None:
+    report = await build_summary()
     await send_message(chat_id, report)
 
 
@@ -223,8 +235,12 @@ async def handle_update(update: dict[str, Any]) -> None:
             await cmd_help(chat_id)
         elif command == "/daily":
             await cmd_daily(chat_id)
+        elif command == "/weekly":
+            await cmd_weekly(chat_id)
         elif command == "/monthly":
             await cmd_monthly(chat_id)
+        elif command == "/summary":
+            await cmd_summary(chat_id)
         elif command == "/undo":
             await cmd_undo(chat_id)
         elif command == "/delete":

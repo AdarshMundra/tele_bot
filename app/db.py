@@ -68,6 +68,21 @@ async def insert_expense(
     return row["id"]
 
 
+EDITABLE_FIELDS = {"description", "amount", "category", "subcategory", "payment_mode", "payment_source"}
+
+
+async def update_expense_field(expense_id: int, field: str, value: str) -> bool:
+    """Update a single field of an expense. Returns True if a row was updated."""
+    if field not in EDITABLE_FIELDS:
+        raise ValueError(f"Field '{field}' is not editable. Choose from: {', '.join(EDITABLE_FIELDS)}")
+    result = await get_pool().execute(
+        f"UPDATE expenses SET {field} = $1 WHERE id = $2",
+        value,
+        expense_id,
+    )
+    return result == "UPDATE 1"
+
+
 async def delete_expense(expense_id: int) -> bool:
     """Delete expense by id. Returns True if a row was deleted."""
     result = await get_pool().execute(

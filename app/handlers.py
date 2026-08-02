@@ -12,6 +12,8 @@ from app.db import (
     get_expense_by_id,
     get_last_expense,
     insert_expense,
+    update_expense_field,
+    EDITABLE_FIELDS,
 )
 from app.llm import extract_expense
 from app.reports import build_daily_report, build_monthly_report, build_weekly_report, build_summary
@@ -53,11 +55,13 @@ async def cmd_start(chat_id: int) -> None:
         "/monthly — this month's spending\n"
         "/summary — today / week / month at a glance\n"
         "/undo — delete last logged expense\n"
+        "/edit `<id> <field> <value>` — edit an expense field\n"
         "/delete `<id>` — delete expense by ID\n"
-        "/check — ping server and wake it up if sleeping\n"
+        "/start — ping server and show this message\n"
         "/help — show this message"
     )
     await send_message(chat_id, text)
+    await cmd_check(chat_id)
 
 
 async def cmd_help(chat_id: int) -> None:
@@ -130,6 +134,51 @@ async def cmd_check(chat_id: int) -> None:
     except Exception as exc:
         logger.exception("cmd_check failed")
         await send_message(chat_id, f"❌ Could not reach server: `{exc}`")
+
+
+async def cmd_edit(chat_id: int, args: str) -> None:
+    """Edit a field of an expense. Usage: /edit <id> <field> <value>"""
+    parts = args.strip().split(None, 2)
+    if len(parts) < 3 or not parts[0].isdigit():
+        fields = ", ".join(f"`{f}`" for f in sorted(EDITABLE_FIELDS))
+        await send_message(
+            chat_id,
+            f"Usage: `/edit <id> <field> <value>`\n\nEditable fields: {fields}\n\nExamples:\n"
+            "`/edit 42 description lunch with team`\n"
+            "`/edit 42 amount 350`\n"
+            "`/edit 42 category Food`",
+        )
+        return
+
+    expense_id = int(parts[0])
+    field = parts[1].lower()
+    value = parts[2].strip()
+
+    if field not in EDITABLE_FIELDS:
+        fields = ", ".join(f"`{f}`" for f in sorted(EDITABLE_FIELDS))
+        await send_message(chat_id, f"Unknown field `{field}`. Editable fields: {fields}")
+        return
+
+    row = await get_expense_by_id(expense_id)
+    if not row:
+        await send_message(chat_id, f"No expense found with id {expense_id}.")
+        return
+
+    old_value = str(row[field]) if row[field] is not None else "—"
+
+    try:
+        updated = await update_expense_field(expense_id, field, value)
+    except Exception as e:
+        await send_message(chat_id, f"⚠️ Could not update expense: `{e}`")
+        return
+
+    if updated:
+        await send_message(
+            chat_id,
+            f"✏️ Updated expense `{expense_id}`\n*{field}*: {old_value} → {value}",
+        )
+    else:
+        await send_message(chat_id, f"Could not update expense {expense_id}. It may not exist.")
 
 
 async def cmd_delete(chat_id: int, args: str) -> None:
@@ -243,10 +292,10 @@ async def handle_update(update: dict[str, Any]) -> None:
             await cmd_summary(chat_id)
         elif command == "/undo":
             await cmd_undo(chat_id)
+        elif command == "/edit":
+            await cmd_edit(chat_id, args)
         elif command == "/delete":
             await cmd_delete(chat_id, args)
-        elif command == "/check":
-            await cmd_check(chat_id)
         else:
             await send_message(chat_id, f"Unknown command: `{command}`\nType /help for usage.")
     else:

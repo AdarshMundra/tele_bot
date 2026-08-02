@@ -49,7 +49,7 @@ async def poll_loop() -> None:
             try:
                 resp = await client.get(
                     f"{TELEGRAM_API}/getUpdates",
-                    params={"offset": offset, "timeout": POLL_TIMEOUT, "allowed_updates": ["message"]},
+                    params={"offset": offset, "timeout": POLL_TIMEOUT, "allowed_updates": ["message", "callback_query"]},
                 )
                 data = resp.json()
                 if not data.get("ok"):

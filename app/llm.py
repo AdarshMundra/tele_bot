@@ -51,7 +51,7 @@ Taxonomy:
 Food & Dining → Groceries, Restaurants, Cafes, Delivery, Snacks
 Transport → Fuel, Public transit, Ride-hailing, Parking, Tolls
 Housing & Utilities → Rent, Electricity, Water, Internet, Gas, Maintenance
-Shopping → Clothing, Electronics, Household, Personal care
+Shopping → Clothing, Electronics, Household, Personal care, Online, Other
 Health → Pharmacy, Doctor, Insurance, Fitness
 Entertainment → Streaming, Movies, Games, Events, Hobbies
 Finance → Fees, Interest, Transfers, Investments

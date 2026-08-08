@@ -80,11 +80,18 @@ EXPENSE_JSON_SCHEMA = {
                 },
                 "payment_source": {
                     "type": "string",
-                    "enum": ["credit card", "debit card", "HDFC", "IOB account", "BOB account"],
-                    "default": "credit card",
+                    "enum": [
+                        "credit card", "debit card",
+                        "HDFC credit card", "HDFC debit card", "HDFC account",
+                        "ICICI credit card", "ICICI debit card", "ICICI account",
+                        "IOB account", "BOB account",
+                        "other"
+                    ],
                     "description": (
-                        "The account or card debited, e.g. 'credit card', 'debit card', "
-                        "'HDFC savings', 'SBI account'. Null if not mentioned."
+                        "The account or card debited. Pick the closest match. "
+                        "Bank account mentions (e.g. 'IOB account', 'SBI account') → use the account option. "
+                        "Credit/debit card mentions → use the card option. "
+                        "Return 'credit card' if not mentioned."
                     ),
                 },
             },
